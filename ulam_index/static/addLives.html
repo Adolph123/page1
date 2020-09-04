@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .botmOk {
+    width: 94%;
+    line-height: 90px;
+    padding: 2px 0;
+    text-align: center;
+    background: linear-gradient(to bottom right, #dd8fff, #9a55ff);
+    font-size: 40px;
+    color: #fff;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+
+  .botmNO {
+    width: 94%;
+    line-height: 90px;
+    padding: 2px 0;
+    text-align: center;
+    background: #e9e9e9;
+    font-size: 40px;
+    color: #8A8787;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+
+  .backcolors {
+    background: rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 20000;
+  }
+
+  .end_live {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 3100;
+    color: #fff;
+    text-align: center;
+    background: #222;
+  }
+
+  .btoms {
+    width: 80%;
+    margin: 0 auto;
+    height: 95px;
+    line-height: 95px;
+    text-align: center;
+    border-radius: 55px;
+    font-size: 40px;
+    color: #fff;
+  }
+
+  .inptext {
+    width: 100%;
+    outline: none;
+    height: 100px;
+    color: #fff;
+    border: 0;
+    background: rgba(0, 0, 0, 0);
+    text-indent: 10px;
+    font-size: 40px;
+    word-wrap: break-word;
+    caret-color: #9a55ff;
+  }
+
+  .inptext::placeholder {
+    color: #eee;
+    font-size: 40px;
+    padding: 10px;
+    height: 60px;
+  }
+
+
+
+  .divs {
+    background: linear-gradient(to bottom right, #dd8fff, #9a55ff);
+  }
+
+  .texts {
+    width: 100%;
+    height: 7vh;
+    line-height: 7vh;
+    outline: none;
+    border: 0;
+    background: #fff;
+    text-indent: 20px;
+    padding: 10px;
+    color: #000;
+    font-size: 40px;
+  }
+
+  .texts::placeholder {
+    color: #ccc;
+    font-size: 40px;
+    text-indent: 20px;
+    padding: 10px;
+    height: 60px;
+  }
+
+  .textList {
+    word-wrap: break-word;
+    max-width: 70vw;
+    display: inline-block;
+    min-width: 10vw;
+  }
+  .texItem {
+    display: inline-block;
+    line-height: 50px;
+    margin: 5px 20px 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    color: #fff;
+  }
+  .activetexItem {
+    color: rgb(154, 85, 255);
+    border: 1px solid rgb(154, 85, 255);
+  }
+
+  #app {
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+<body style="background: rgba(0,0,0,0.1);font-size: 40px;height: 100vh;width: 100vw;overflow: hidden">
+<div id="app">
+  <div style="height: 40px"></div>
+  <!--  查看打赏       -->
+  <div class="backcolors" v-if="isrecord">
+    <div @click.stop="" style="height: 100vh;background: #fff;padding: 0 3vw">
+      <div style="height: 6vh;"></div>
+      <div style="display:flex;justify-content: space-between;align-items: center;">
+        <div><img @click="isrecord = false" src="./lives/back.png" alt=""
+                  style="width: 32px;height: auto;display: block"></div>
+        <div>总打赏{{money}}ulam</div>
+        <div></div>
+      </div>
+      <div style="height: 2vh;"></div>
+      <!--           -->
+      <div v-if="recordlist.length > 0">
+        <div v-for="( item, index ) in recordlist" :key="index"
+             style="display: flex;justify-content: space-between;border-bottom: 0.5px solid #f5f5f5;padding: 15px 0;align-items: center">
+          <div style="display: flex;align-items: center">
+            <img :src="item.Header" alt="" style="width: 72px;height: 72px;border-radius: 50%;display: block">
+            <div style="width: 15px;"></div>
+            <div style="font-size: 38px">{{item.Nick}}</div>
+            <div style="width: 5px;"></div>
+            <!--                <div style="font-size: 12px"> 性别</div>-->
+          </div>
+          <div style="font-size: 38px">
+            <span style="color:#ccc;">给他打赏</span><span style="color:#3f0082;">&nbsp;{{item.Amount}}ulam</span>
+          </div>
+        </div>
+      </div>
+      <!--          -->
+      <div v-else
+           style="width: 100vw;height: 80vh;display: flex;align-items: center;justify-content: center;color: #ccc">暂无打赏
+      </div>
+    </div>
+  </div>
+
+
+  <!--  直播倒数  -->
+  <div v-if="!(liveNum < 0)"
+       style="position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;opacity:0;
+       display: flex;align-items: center;justify-content: center;font-size: 100px;background: rgba(0,0,0,0.8);color: #fff;"
+       :style="{opacity:!(liveNum < 0)?1:0}"
+  >
+    {{liveNum==0?'开始直播':liveNum}}
+  </div>
+
+  <!--    直播前   -->
+  <div v-if="islives" style="padding: 0 3vw;">
+    <div style="height: 35px"></div>
+    <div>
+      <div style="display: flex;justify-content: space-between;align-items: center;padding: 0 3vw">
+        <div></div>
+        <div style="display: flex;align-items: center;">
+          <p style="width: 3px;"></p>
+          <img @click="switchC" src="./lives/l6.png" alt="" style="width: 70px;height: auto;display: block">
+          <p style="width: 38px;"></p>
+          <img @click="tagglebeauty" src="./lives/l7.png" alt="" style="width: 70px;height: auto;display: block">
+          <p style="width: 78px;"></p>
+          <img @click="stopPush" src="./lives/heade0.png" alt="" style="width: 50px;height: 50px;display: block">
+        </div>
+      </div>
+    </div>
+    <div style="height: 20vh;width: 100%"></div>
+    <div style="padding: 0 20px">
+
+      <div style="overflow: hidden;width: 100%;color: #fff;font-size: 40px">
+
+        <div style="height: 20px;"></div>
+
+        <div style="display: flex;align-items: center">
+          <div style="display: flex;align-items: center;width: 21vw;position: relative">
+            <img :src="images" @click="xuanqu1" alt="" style="height: 20vw;width: 20vw;display: inline-block">
+
+            <div style="position: absolute;top: 0;color: #000;font-size: 20px">
+              <!--              添加直播封面-->
+            </div>
+          </div>
+          <div style="margin: 6px 0;width: 78vw">
+            <input type="text" v-focus="islode" v-model="livetext" class="inptext" placeholder="有些话想对你说，你不来怎么知道呢？"/>
+          </div>
+        </div>
+
+        <!--      addshopImage-->
+      </div>
+    </div>
+
+    <div style="height: 5vh"></div>
+
+    <div style="padding: 0 20px;color: #fff;font-size: 40px">
+      点击添加直播封面语言
+      <div style="height: 2vh"></div>
+      <div>
+        <div v-for="(item,index) in liveList" @click="taggleID(item)"
+             :key="item.Id" class="texItem" :class="{activetexItem:item.Id == livetextId}">
+          <span>{{item.Name}}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="height: 15vh;"></div>
+    <!--      @click="getlivevideo"         -->
+    <div class="btoms divs" style="margin-top: 20px" @click="getlivevideos">
+      开始直播
+    </div>
+  </div>
+
+  <!--    直播时-->
+  <div v-else style="padding: 0 3vw">
+    <div style="height: 30px"></div>
+    <div style="display: flex;justify-content: space-between;padding: 0 10px;z-index: 300;position: relative;">
+      <!--          左边    -->
+      <div
+        style="background: rgba(0,0,0,0.2);display: flex;align-items: center;justify-content:space-between;font-size: 26px;border-radius: 45px;color: #fff;">
+        <!--     头像 打开个人信息      -->
+        <div @click="ismydetail = true" style="margin-left: 5px">
+          <img :src="detailsitem.Header" alt="" style="width: 75px;height: 75px;display: block;border-radius: 50%">
+        </div>
+        <div style="width: 45px"></div>
+        <div style="line-height: 40px;font-size: 26px;margin-right: 25px">
+          <div style="display: flex;">{{count== 0?'0':count}}观看
+            <div style="margin-left: 20px">{{timers}}</div>
+          </div>
+        </div>
+        <div style="width: 35px;"></div>
+      </div>
+
+      <!--          右边      -->
+      <div style="font-size: 26px;display: flex;align-items: center;text-align: center;">
+        <div style="background: rgba(0,0,0,0.5);border-radius: 6px;overflow: hidden;">
+          <div style="background: rgba(255,255,255,0.7);padding: 0 15px">ULAM直播</div>
+          <div style="padding: 0 15px;color: #fff">ID：{{streamName}}</div>
+        </div>
+        <div style="width: 30px;"></div>
+        <!--          isAbstract = true -->
+        <div @click="isAbstract = true">
+          <img src="./lives/heade0.png" alt="" style="width: 55px;height: auto;display: block">
+        </div>
+      </div>
+    </div>
+    <div style="height: 20px"></div>
+
+    <div
+      style="display: flex;justify-content: center;align-items: center;padding: 10px 20px;color: #fff;font-size: 26px;background: rgba(0,0,0,0.2);width: 20vw;border-radius: 30px"
+      @click="torecordLive(streamName)">
+      收到打赏{{gift==0?'0':gift}} &nbsp;&nbsp;>
+    </div>
+
+    <!--    警告-->
+
+    <div v-if="issetfonts"
+         style="width:40vh;color:#9a55ff;font-size: 40px;background: rgba(0,0,0,0.3);padding: 10px;border-radius: 10px;position: fixed;bottom: 22vh;">
+      欢迎您使用ULAM直播服务，请遵守《ULAM直播服务使用协议》。ULAM直播禁止包含色情、违法、侵权等性质内容。对于发布违规直播的用户，ULAM项目方将依据上述规定，采取禁言或封号等管理手段
+    </div>
+
+    <!--  弹幕  -->
+    <div style="position: fixed;bottom: 10vh;z-index: 20">
+      <div>
+        <div v-for="(item,index) in txtList" :key="index">
+          <div class="textList"
+               style="padding: 15px 20px;font-size: 40px;background: rgba(0,0,0,0.3);border-radius: 40px;margin-bottom: 20px">
+            <span style="color: #9a55ff;font-weight: 700;">{{item.nick?item.nick+':':item.nick}}</span>
+            <span style="color: #fff;font-weight: 700;">{{item.msg}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--      功能    -->
+    <div style="position: fixed;bottom: 2vh;z-index: 30;width: 100%;">
+      <div style="display: flex;justify-content: space-between;align-items: center;color: #fff;">
+
+        <div @click="istxtList = true"
+             style="display: flex;align-items: center;background: rgba(0,0,0,0.4);padding: 15px 205px 15px 45px;border-radius: 40px">
+          一起聊聊...
+        </div>
+
+
+        <div style="margin-right: 4vw;">
+          <div v-if="issets" @click="issets = false" style="display: flex;align-items: center;">
+            <img src="./lives/l1.png" alt="" style="width: 33px;height: 33px;display: block">
+          </div>
+          <div v-else style="display: flex;align-items: center">
+            <!--            设置摄像头-->
+            <p style="width: 30px;"></p>
+            <img @click="switchC" src="./lives/l6.png" alt="" style="width: 82px;height: 82px;display: block">
+            <p style="width: 30px;"></p>
+            <img @click="isshare = true" src="./lives/l15.png" alt="" style="width: 130px;height: auto;display: block">
+            <p style="width: 30px;"></p>
+            <img @click="tagglebeauty" src="./lives/l7.png" alt="" style="width: 82px;height: 82px;display: block">
+            <p style="width: 3px;"></p>
+          </div>
+
+
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!--    直播结束   -->
+  <div v-if="isendLive" class="end_live">
+    <div style="height:10vh"></div>
+    <!--      头像-->
+    <div style="display: flex;justify-content: center;align-items: center">
+      <img :src="userIetm.Header" alt=""
+           style="border-radius: 50%;display: block;width: 100px;height: 100px;background: #fff;padding: 2px;">
+    </div>
+    <div style="height: 45px"></div>
+    <!--     主播名    -->
+    <div style="display: flex;justify-content: center;align-items: center;font-size: 45px">
+      <span>{{userIetm.Nick?userIetm.Nick:"ulam矿工"}}</span>
+    </div>
+    <div style="height: 95px"></div>
+    <!--      收益    -->
+    <div style="text-align: center">
+      <div style="font-size: 26px;color: #eee;line-height: 35px">本场收益</div>
+      <div style="height: 20px"></div>
+      <div style="font-size: 80px;color: #9a55ff;font-weight: 600">{{item.TotalGift?item.TotalGift:0}} <span
+        style="font-size: 34px">ULAM</span></div>
+    </div>
+    <div style="height: 7vh"></div>
+    <!--      人数   粉丝   评论    -->
+    <div style="display: flex;justify-content: center;align-items: center;">
+      <div style="padding-right: 8vw;">
+        <span style="font-size: 75px;">{{item.Count?item.Count:0}}</span>
+        <div>人数</div>
+      </div>
+      <div style="padding: 0 8vw;border-left: 1px solid rgba(76,76,76,1);">
+        <span style="font-size: 75px;">{{item.NewFans?item.NewFans:0}}</span>
+        <div>粉丝</div>
+      </div>
+      <div style="padding-left: 8vw;border-left: 1px solid rgba(76,76,76,1)">
+        <span style="font-size: 75px;">{{item.TalkCount?item.TalkCount:0}}</span>
+        <div>评论</div>
+      </div>
+
+    </div>
+    <div style="height: 15vh"></div>
+    <!--      完成    -->
+    <div style="display: flex;justify-content: center;align-items: center">
+      <div class="botmOk" style="width: 70%;border-radius: 45px" @click="tolivebroadcast">直播完成</div>
+    </div>
+  </div>
+
+  <!--  写弹幕  -->
+  <div class="backcolors" v-if="istxtList" @click="istxtList = false">
+    <div @click.stop="" v-if="istxtList"
+         style="position:fixed;z-index: 100;left: 0;bottom: 0vh;width: 100%;background: #ffff;height: 8vh;display: flex">
+      <textarea type="text" v-focus="islode" v-model="livetext" @keyup.enter="seartvalus" placeholder="回车发送信息"
+                class="texts"></textarea>
+      <div style="width: 20%;display: flex;align-items: center;justify-content: center;
+      background: #9a55ff;color: #fff" @click="seartvalus">发送
+      </div>
+    </div>
+  </div>
+
+  <!--    个人信息           -->
+  <div class="backcolors" v-if="ismydetail"
+       style="opacity:0;"
+       :style="{opacity:ismydetail?1:0}"
+       @click="ismydetail = false">
+    <div @click.stop="">
+      <div
+        style="position: fixed;bottom: 0;width: 100%;background: #fff;text-align: center;color: #999;font-size: 36px">
+        <div style="margin-top: -65px">
+          <img :src="mydetails.Header" alt=""
+               style="width: 160px;height:  160px;display: block;margin: 0 auto;border-radius: 50%">
+        </div>
+        <div style="height: 3vh"></div>
+        <div style="color: #000;font-weight: 600">
+          {{mydetails.Nick}}
+        </div>
+        <div style="height: 4vh"></div>
+        <div>
+          {{mydetails.Abstract?mydetails.Abstract:' 这个家伙很懒，什么都没留下...'}}
+        </div>
+
+        <div style="height: 50px"></div>
+        <div style="display: flex;justify-content: space-between;padding: 0 10px">
+          <div style="flex: 1;border-right: 1px solid #eee">
+            <div style="color: #000;font-weight: 500;font-size: 40px">{{mydetails.Follow?mydetails.Follow:0}}</div>
+            <div>关注</div>
+          </div>
+          <div style="flex: 1;border-right: 1px solid #eee;">
+            <div style="color: #000;font-weight: 500;font-size: 40px">{{mydetails.Fans?mydetails.Fans:0}}</div>
+            <div>粉丝</div>
+          </div>
+          <div style="flex: 1;border-right: 1px solid #eee">
+            <div style="color: #000;font-weight: 500;font-size: 40px">{{mydetails.Send?mydetails.Send:0}}</div>
+            <div>收到打赏</div>
+          </div>
+          <div style="flex: 1;">
+            <div style="color: #000;font-weight: 500;font-size: 40px">{{mydetails.Receive?mydetails.Receive:0}}</div>
+            <div>送礼</div>
+          </div>
+        </div>
+        <div style="height: 4vh"></div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 分享 -->
+  <div v-if="isshare"
+       style="background: #000;opacity:0;width: 100vw;height: 100vh;position: fixed;z-index:1000;top: 0;left: 0"
+       :style="{opacity:isshare?1:0}"
+  >
+    <div>
+
+
+      <div style="display: flex;justify-content: flex-end;position: absolute;width: 100vw;top:6vh;left: 0;z-index: 10;">
+        <img @click="isshare = false" src="./lives/heade00.png" alt=""
+             style="width: 6vw;height: 6vw;display: block;margin-right: 4vw;">
+      </div>
+
+      <div id="share" style="background: #fff;border-radius: 1vw">
+        <div>
+          <img :src="images"
+               alt="" style="width: 100%;height: auto;display: block">
+        </div>
+
+        <div style="height: 4vh;"></div>
+
+        <div style="display: flex;justify-content: space-between;padding: 0 3vw">
+          <div style="display: flex;font-size: 33px;align-items: center;">
+            <div style="width: 27vw;">
+              <img src="./lives/kg.png" alt="" style="width: 25vw;height: 25vw;display: block">
+            </div>
+            <div style="width: 72vw;">
+              <div style="font-weight: 600;width: 90%;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;">
+                {{shareName}}
+              </div>
+              <div style="height: 1vh"></div>
+              <div>主播名:{{detailsitem.Nick?detailsitem.Nick:0}}</div>
+              <div style="height: 1vh"></div>
+              <div>房间号:{{streamName}}</div>
+              <div style="height: 1vh"></div>
+              <div>邀请码:{{mydetails.Id?mydetails.Id:0}}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 7vh;"></div>
+      </div>
+      <div style="height: 3vh;"></div>
+
+      <div style="position: fixed;bottom: 0vh;width: 100vw;left: 0;border-top: 1px solid #999;">
+        <div class="botmOk" style="width: 100%;border-radius: 0;" @click="addshers">保存到相册</div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+  <!--     退出询问     v-if="isAbstract"   -->
+  <div v-if="isAbstract" class="backcolors" @click="isAbstract = false"
+       style="opacity:0;"
+       :style="{opacity:isAbstract?1:0}"
+  >
+    <div style="margin-top: 27vh" @click.stop="">
+      <div style="width: 80%;min-height: 200px;background: #fff;margin: 0 auto;padding: 6px 5vw;border-radius: 7px">
+        <div style="height: 5vh"></div>
+        <div style="display: flex;justify-content: center;align-items: center;height: 50px;font-size: 46px;"> 确定退出直播吗？
+        </div>
+
+
+        <div style="height: 7vh"></div>
+
+        <div style="display: flex;justify-content: center;align-items: center;">
+          <div class="botmOk" @click="goback">确定</div>
+          <div style="width: 7vw"></div>
+          <div class="botmNO" @click="isAbstract = false">取消</div>
+        </div>
+        <div style="height: 5vh"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="./js/vue.js"></script>
+<script src="./js/vue-html5plus.js"></script>
+<script src="./js/axios.js"></script>
+<script type="text/javascript" charset="utf-8">
+    new Vue({
+        el: '#app',
+        data: {
+                issetfonts: true,
+                islives: true,
+                isshare: false,
+                isendLive: false,
+                beauty: false,
+                isAbstract: false,
+                istxtList: false,
+                isrecord: false,
+                shareName: '',
+                mydetails: {
+                    // Header:'http://img2.imgtn.bdimg.com/it/u=2462146637,4274174245&fm=26&gp=0.jpg',
+                    // Nick:'ulam矿工',
+                },
+                liveNum: -1,
+                recordlist: [
+                    // {
+                    //     Nick:'ulam矿工',
+                    //     Amount:'10',
+                    //     Header:'http://img2.imgtn.bdimg.com/it/u=2462146637,4274174245&fm=26&gp=0.jpg',
+                    // }
+                ],
+                money: 0,
+                timers: 0,
+                txtList: [
+                    // {nick:'老鼠爱猫咪',msg:'秋天的风，'},
+                    // {nick:'老鼠爱猫咪',msg:'秋天的风，'},
+                    // {nick:'老鼠爱猫咪',msg:'秋天的风，'},
+                ],
+                issets: false,
+                ismydetail: false,
+                issettime: false,
+                hu: 0,
+                token: '',
+                islode: true,
+                livetextId: 0,
+                livetext: '',
+                pusher: '',
+                images: './lives/tu.png',
+                liveImage: '',
+                liveList: [
+                    // {Name: '111', Id: 1}, {Name: '222', Id: 2}, {Name: '333', Id: 3}, {Name: '444', Id: 4}
+                ],
+                userIetm: {},
+                detailsitem: {},
+                count: 0, item: {},
+                streamName: '',
+                gift: 0,
+        },
+        directives: {
+            focus: {
+                inserted: function (el, {value}) {
+                    console.log(el, {value})
+                    if (value) {
+                        el.focus();
+                    }
+                }
+            },
+        },
+        created() {
+            // this.liveNumremove()
+        },
+        mounted: function () {
+            setTimeout(() => {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                this.token = h.token;
+                this.hu = h.hu;
+                this.detailsitem = h.detailsitem;
+                this.liveNamess();
+            }, 300)
+
+
+        },
+        methods: {
+            addshers() {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+
+                var w = plus.webview.create('./ceshi.html', 'addlive', {
+                    background: 'transparent',
+                }, {
+                    flag: 4,
+                });
+                h.hide(1);
+            },
+            //请求封面语
+            liveNamess() {
+                let apiurl = 'v1/live/names';
+                let data = {};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '!!!!!!');
+                    this.liveList = res.data;
+                })
+            },
+//选择封面语
+            taggleID(item) {
+                this.livetext = item.Name;
+                this.livetextId = item.Id;
+            },
+            //开始直播
+            getlivevideos() {
+                let plus = window.plus;
+                let that = this;
+                if (that.livetext == '') {
+                    plus.nativeUI.toast('请添加直播标题', {verticalAlign: 'center'});
+                } else if (that.liveImage == '') {
+                    plus.nativeUI.toast('请添加直播图片', {verticalAlign: 'center'});
+                } else {
+                    let apiurl = 'v1/live/startPush';
+                    let data = {
+                        Name: that.liveImage,
+                        Name2: that.livetext
+                    };
+                    this.getlivesdislists(apiurl, data).then(res => {
+
+                        // that.set = Date.parse(new Date());
+                        // that.issettime = true;
+                        // that.timersadd();
+
+                        console.log(res, '!!!!!!');
+                        that.datas = res.data;
+                        that.islives = false;
+                        that.streamName = res.data.StreamName;
+
+                        // that.liveNum = 3;
+                        // that.liveNumremove();
+
+
+                        // 请求弹幕
+                        // that.getinformationList();
+                        // that.pusher = null;
+                        //开始直播
+
+                        let h = plus.webview.getWebviewById('test');
+
+                        var w = plus.webview.create('./ceshi.html', 'addlive', {
+                            background: 'transparent',
+                        }, {
+                            flag: 1,
+                            evt: res.data.PushUrl,
+                            streamName: res.data.StreamName,
+                            images: that.images,
+                            Name: that.livetext,
+                        });
+                        h.hide(1);
+
+                        setTimeout(() => {
+                            that.detailLivetex(that.hu)
+                        }, 200)
+                        that.shareName = that.livetext;
+                        that.livetext = '';
+                    })
+                }
+
+            },
+            //开始直播倒数
+            liveNumremove() {
+                let that = this;
+                setTimeout(() => {
+                    that.liveNum -= 1;
+                    if (that.liveNum < 0) {
+                        that.issetfonts = true;
+                        setTimeout(() => {
+                            that.issetfonts = false;
+                        }, 3000)
+                        return
+                    } else {
+                        that.liveNumremove()
+                    }
+
+
+                }, 900)
+            },
+
+            //直播的事件
+
+            timersadd() {
+                let xianzai = Date.parse(new Date());
+                let micro_second = parseInt(xianzai) - parseInt(this.set);
+                // 总秒数
+                var second = Math.floor(micro_second / 1000);
+                var day = Math.floor(second / 3600 / 24);
+                var hr = Math.floor(second / 3600 % 24);
+                var min = Math.floor(second / 60 % 60);
+                var sec = Math.floor(second % 60);
+                hr = hr < 10 ? ("0" + hr) : hr;
+                min = min < 10 ? ("0" + min) : min;
+                sec = sec < 10 ? ("0" + sec) : sec;
+                setTimeout(() => {
+                    this.timers = parseInt(hr) > 0 ? hr + ':' + min + ":" + sec : min + ":" + sec;
+                    if (this.issettime == true) {
+                        this.timersadd()
+                    }
+                }, 1000)
+
+            },
+
+
+            //发送弹幕
+            seartvalus() {
+                if (this.livetext) {
+                    this.addliveChat()
+                }
+            },
+
+            //发送弹幕
+            addliveChat() {
+                let that = this;
+                let date = {"code": 10019, "streamName": that.streamName, "msg": that.livetext};
+                this.websocket.send(JSON.stringify(date));
+                this.livetext = '';
+                this.istxtList = false;
+                this.websocket.onmessage = function (evt) {
+                    console.log('弹幕信息' + evt.data);
+                    if (evt.data == 'ping') {
+                        that.txtList.push({
+                            msg: '',
+                            nick: '',
+                        });
+                        if (that.txtList.length > 7) {
+                            that.txtList.shift(7, 1)
+                        }
+                        return
+                    } else {
+                        let obj = JSON.parse(evt.data);
+                        that.count = obj.count ? obj.count : that.count;
+                        that.gift = obj.gift ? obj.gift : that.gift;
+                        console.log(obj, '!!!!!!!!!!!!!!!!')
+                        if (obj.code == 10006) {
+                            that.txtList.push(obj);
+                            if (that.txtList.length > 7) {
+                                that.txtList.shift(7, 1)
+                            }
+                        }
+                    }
+
+                };
+            },
+            //请求弹幕
+            getinformationList() {
+                var wsServer = 'ws://39.98.249.37:5006/liveChat';
+                var websocket = new WebSocket(wsServer);
+                let that = this;
+                websocket.onopen = function (evt) {
+                    var remind = `{"token":"${that.token}","streamName":"${that.streamName}"}`;
+                    websocket.send(remind);
+                };
+
+                websocket.onclose = function (evt) {
+                    console.log("Disconnected");
+                };
+                websocket.onmessage = function (evt) {
+                    console.log('弹幕信息' + evt.data);
+
+
+                    if (evt.data == 'ping') {
+                        console.log('!!!!!!!!!!!!!!!!');
+
+                        that.txtList.push({
+                            msg: '',
+                            nick: '',
+                        });
+                        if (that.txtList.length > 7) {
+                            that.txtList.shift(7, 1)
+                        }
+                        return
+                    } else {
+                        let obj = JSON.parse(evt.data);
+                        that.count = obj.count;
+                        that.gift = obj.gift;
+                        console.log(obj, '!!!!!!!!!!!!!!!!')
+                        if (obj.code == 10006) {
+                            that.txtList.push(obj);
+                            if (that.txtList.length > 7) {
+                                that.txtList.shift(7, 1)
+                            }
+                        }
+
+                    }
+
+
+                };
+                websocket.onerror = function () {
+                    that.reconnect()
+                };
+                this.websocket = websocket;
+            },
+            //重连
+            reconnect(url) {
+                let that = this;
+                setTimeout(function () {     //没连接上会一直重连，设置延迟避免请求过多
+                    var ws = that.websocket;
+                    ws.onclose = function () {
+                        that.reconnect()
+                    };
+                    ws.onerror = function () {
+                        that.reconnect()
+                    };
+                }, 2000);
+            },
+            //礼物详情
+            _getliwu() {
+                let apiurl = 'v1/live/gifts';
+                let data = {};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    this.giftDetails = res.data;
+                })
+            },
+            //请求 直播收到 礼物列表
+            _getgiftlist(Name) {
+                let apiurl = 'v1/live/gift-list';
+                let data = {
+                    "Page": 1,
+                    Name
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '!@!@!@,请求礼物列表')
+                })
+            },
+//直播介绍
+            detailLivetex(Id) {
+                console.log(Id, '直播介绍');
+                let apiurl = 'v1/live/MCInfo';
+                let data = {Id};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '直播介绍');
+                    this.mydetails = res.data;
+                })
+            },
+            //退出直播页面
+            stopPush() {
+                this.timers = 0;
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                h.close();
+            },
+            //退出直播页面
+            tolivebroadcast() {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                h.close();
+            },
+            //退出直播状态
+            goback() {
+                this.userIetm = {
+                    Nick: this.mydetails.Nick,
+                    Header: this.mydetails.Header,
+                    Name: this.streamName,
+                };
+
+                this.isAbstract = false;
+                let apiurl = 'v1/live/closePush';
+                let a = this.streamName + '';
+                let data = {'Name': a};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    // console.log(res, '结束直播');
+                    let a = JSON.stringify(res);
+                    // alert(a+'结束直播')
+                    //获取音频服务
+                    // AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+                    // 		//设置声音模式
+                    // audioManager.setMode(AudioManager.STREAM_MUSIC);
+                    // 		//关闭麦克风
+                    // audioManager.setMicrophoneMute(false);
+                })
+                this._getlivesdislists(this.streamName)
+                this.isendLive = true;
+
+
+                let thst = this;
+                thst.websocket.onclose = function (e) {
+                    thst.websocket.close(); //关闭TCP连接
+                };
+
+
+            },
+
+
+            //直播结束数据
+            _getlivesdislists(Name) {
+                this.issettime = false;
+                let apiurl = 'v1/live/live-info';
+                let data = {Name};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '直播结束数据');
+
+                    this.item = res.data;
+                    let a = JSON.stringify(res.data);
+                    // alert(a+'直播结束数据')
+                })
+            },
+
+            getlivesdislists(apiurl, data) {
+                const url = `https://server.ulam.top/live/api/${apiurl}`;
+                let tokens = this.token;
+                return axios.post(url, data, {
+                    headers: {
+                        'content-type': 'application/json',
+                        "token": tokens
+                    }
+                }).then((res) => {
+                    return Promise.resolve(res.data)
+                }).catch((err) => {
+                    console.log(err, "@@@@@@@@@@@@@@@@请求失败");
+                })
+            },
+            //切换摄像头
+            switchC() {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                var w = plus.webview.create('./ceshi.html', 'addlive', {
+                    background: 'transparent',
+                }, {
+                    flag: 2
+                });
+                h.hide(2)
+
+            },
+            //打开关闭美颜
+            tagglebeauty() {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                var w = plus.webview.create('./ceshi.html', 'addlive', {
+                    background: 'transparent',
+                }, {
+                    flag: 3
+                });
+                h.hide(3)
+            },
+
+            addshopImage() {
+
+            },
+            //选图片
+            xuanqu1() {
+                let that = this;
+                let plus = window.plus;
+                plus.gallery.pick(function (path) {
+
+                        var timestamp = Date.parse(new Date());
+                        that.compressImage1(path, timestamp)
+                    }, function (err) {
+                        console.log('相册选取失败: ' + err.message);
+                    },
+                    //第三个参数 为选取什么，none 是都可以选择
+                    {
+                        filter: "image",
+                    })
+            },
+            // 请求图片名
+            getimageItem(file) {
+
+                let formdata = new FormData();
+                formdata.append('from', 'live-image');
+                formdata.append('file', file);
+                const url = `http://39.98.249.37:5006/api/auth/uploadOne`;
+                console.log(formdata, '@@@@@');
+                let tokens = this.token;
+                let that = this;
+                axios.post(url, formdata, {
+                    headers: {
+                        'content-type': 'application/json',
+                        "token": tokens
+                    }
+                })
+                    .then((res) => {
+                        that.liveImage = res.data.data.name;
+                        this.images = URL.createObjectURL(file);
+                    });
+            },
+            //压缩图片
+            compressImage1(url, filename) {
+                let that = this;
+                let plus = window.plus;
+                let name = "_doc/upload/" + filename;
+                plus.zip.compressImage({
+                        src: url,  //src: (String 类型 )压缩转换原始图片的路径
+                        dst: name, //压缩转换目标图片的路径
+                        quality: 40,//quality: (Number 类型 )压缩图片的质量.取值范围为1-100
+                        overwrite: true,//overwrite: (Boolean 类型 )覆盖生成新文件width
+                        width: '600px',
+                        height: '800px'
+                    },
+                    function (zip) {
+
+                        //上传图片
+                        var timestamp = Date.parse(new Date());
+                        that.getBase64FromImageURL(zip.target, (res) => {
+                            that.getimageItem(that.getFileFromBase64(res, timestamp));
+                        })
+
+
+                    }, function (error) {
+                        plus.nativeUI.toast("压缩图片失败，请稍候再试", {verticalAlign: 'center'});
+                    });
+            },
+            //转换base4
+            getBase64FromImageURL(url, callback) {
+                var canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d'),
+                    img = new Image;
+                img.crossOrigin = 'Anonymous';
+                img.onload = function () {
+                    canvas.height = img.height;
+                    canvas.width = img.width;
+                    ctx.drawImage(img, 0, 0);
+                    var base64URL = canvas.toDataURL('image/png');
+                    callback(base64URL);
+                    canvas = null;
+                };
+                img.src = url;
+            },
+            /* 将base64转换为file类型 */
+            getFileFromBase64(base64URL, filename) {
+                var arr = base64URL.split(','),
+                    mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]),
+                    n = bstr.length,
+                    u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new File([u8arr], filename, {type: mime});
+            },
+
+
+            getlivevideo() {
+
+            },
+            //打赏总金额
+            _getrecordgiftotal() {
+                let apiurl = 'v1/live/gift-total';
+                let data = {
+                    Name: this.streamName + ''
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '!!!!!!!!!!!!');
+                    this.money = res.data.Total;
+                    let a = JSON.stringify(res);
+                    // alert(a+'打赏总金额')
+                })
+                this.isrecord = true;
+            },
+            //收到的打赏
+            torecordLive() {
+                this._getrecordgiftotal();
+                let apiurl = 'v1/live/gift-list';
+                let data = {
+                    Page: 1,
+                    Name: this.streamName + ''
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '打赏记录');
+                    let reslist = res.data;
+                    if (reslist) {
+                        this.recordlist = reslist;
+                    } else {
+                        return
+                    }
+                    this.total = res.total;
+                    this.isrecord = true;
+                    let a = JSON.stringify(res);
+                    // alert(a+'打赏记录')
+
+                })
+
+
+            },
+
+        },
+        plusReady() {
+            // 获取定位信息
+            // this.$geolocation.getCurrentPosition().then(function (position) {
+            //     this.city = position.address.city;
+            // });
+            // // 获取网络信息
+            // this.networkType = this.$networkinfo.getCurrentNetworkType();
+        }
+    })
+</script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="shouji" unicode="&#58901;" d="M760.32-128H263.68c-56.32 0-102.4 46.08-102.4 102.4V793.6c0 56.32 46.08 102.4 102.4 102.4h494.08c56.32 0 102.4-46.08 102.4-102.4v-819.2c2.56-56.32-43.52-102.4-99.84-102.4zM263.68 844.8c-28.16 0-51.2-23.04-51.2-51.2v-819.2c0-28.16 23.04-51.2 51.2-51.2h494.08c28.16 0 51.2 23.04 51.2 51.2V793.6c0 28.16-23.04 51.2-51.2 51.2H263.68zM593.92 734.72h-161.28c-15.36 0-25.6 10.24-25.6 25.6s10.24 25.6 25.6 25.6h161.28c15.36 0 25.6-10.24 25.6-25.6s-12.8-25.6-25.6-25.6zM186.88 133.12h647.68v-51.2H186.88zM512 7.68m-43.52 0a43.52 43.52 0 1 1 87.04 0 43.52 43.52 0 1 1-87.04 0Z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>

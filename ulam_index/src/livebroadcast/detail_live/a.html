@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title></title>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .toitem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .backcolors {
+    background: rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2000;
+  }
+
+  .botmOk {
+    width: 94%;
+    line-height: 35px;
+    padding: 2px 0;
+    text-align: center;
+    background: linear-gradient(to bottom right, #dd8fff, #9a55ff);
+    font-size: 14px;
+    color: #fff;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+
+  .botmNO {
+    width: 94%;
+    line-height: 35px;
+    padding: 2px 0;
+    text-align: center;
+    background: #e9e9e9;
+    font-size: 14px;
+    color: #8A8787;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+
+  .texts {
+    width: 100%;
+    height: 60px;
+    outline: none;
+    border: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  .inptext {
+    width: 100%;
+    height: 40px;
+    background: #ccc;
+    border-radius: 6px;
+    text-indent: 10px;
+    border: 0;
+    outline: 0;
+  }
+</style>
+<body style="background: rgba(0,0,0,0.1)">
+<div id="app">
+  <div style="height: 40px"></div>
+  <!--    顶部-->
+  <div class="toitem" style="padding: 0 15px;color: #fff">
+    <!--      左边    -->
+    <div style="background: rgba(0,0,0,0.5);display: flex;align-items: center;font-size: 12px;border-radius: 15px">
+      <div @click="ismydetail = true">
+        <img :src="Header" alt="" style="width: 25px;height: auto;display: block;border-radius: 50%">
+      </div>
+      <div style="width: 5px"></div>
+      <div style="line-height: 14px">
+        <div>{{detailsitem.Nick}}</div>
+        <div>{{count==0?'0':count}}观看</div>
+      </div>
+      <div style="width: 15px;"></div>
+      <div style="display: flex;align-items: center" @click="myfollow(detailsitem.Uid)" v-if="!IsFollow">
+        <img src="./lives/love.png" alt="" style="width: 14px;height: auto;display: block">
+        <span style="padding-left: 4px">关注</span>
+      </div>
+      <div @click="cancelfollow(detailsitem.Uid)" v-else>
+        <i></i>已关注
+      </div>
+      <div style="width: 5px;"></div>
+    </div>
+    <!--    右边    -->
+    <div style="font-size: 10px;display: flex;align-items: center;text-align: center;">
+      <div style="background: rgba(0,0,0,0.4);border-radius: 6px;overflow: hidden;height: 100%">
+        <div style="background: #fff;height: 50%;color: #000">ULAM直播</div>
+        <div style="padding: 0 10px;height: 50%">ID：{{detailsitem.StreamName}}</div>
+      </div>
+      <div style="width: 10px;"></div>
+      <div @click="goback">
+        <img src="./lives/heade0.png" alt="" style="width: 30px;height: auto;display: block">
+      </div>
+
+    </div>
+  </div>
+  <!--      收到礼物 数量   -->
+  <div style="border-radius: 0;padding: 0 20px;position: relative;z-index: 300;top: 10px;"
+       @click="torecordLive(detailsitem.StreamName)">
+    收到打赏{{gift==0?'0':gift}}
+  </div>
+  <!-- 警告 -->
+  <div v-if="setTimeo" style="position: fixed;bottom: 170px;width: 75%;z-index: 200">
+    <div style="padding: 0 20px;font-size: 14px;line-height: 16px;color: #ff9500">
+      直播提倡绿色直播，严谨涉政、 涉恐、涉黄聚众闹事、返现等内容，网警24小时巡查。请勿参与直播间非官方奖励活动、游戏，切勿私下交易，以防受骗
+    </div>
+  </div>
+  <!--  聊天  -->
+  <!--  弹幕  -->
+  <div style="position: fixed;bottom: 50px;width: 100%;z-index: 200">
+    <div style="padding: 0 20px;font-size: 12px">
+      <div v-for="(item,index) in txtList" :key="index">
+        <span style="color: #ff9500">{{item.nick?item.nick+':':item.nick}}</span>
+        <span style="color: #ccc">{{item.msg}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div style="position: fixed;bottom: 10px;width: 100%;z-index: 300">
+    <div style="display: flex;justify-content: space-between;align-items: center;color: #ccc;padding: 0 15px">
+      <div style="display: flex;align-items: center">
+        <img @click="toshopDetail" src="./lives/l10.png" alt="" style="width: 30px;height: auto;display: block">
+        <p style="width: 3px;"></p>
+        <span @click="istxtList = true">跟主播聊什么</span>
+      </div>
+      <div style="display: flex;align-items: center">
+
+        <img src="./lives/l2.png" alt="" style="width: 33px;height: auto;display: block">
+        <p style="width: 3px;"></p>
+        <img @click="isgiftDetail = true" src="./lives/l3.png" alt="" style="width: 33px;height: auto;display: block">
+      </div>
+    </div>
+  </div>
+
+
+  <!--个人信息-->
+  <div class="backcolors" v-if="ismydetail" @click="ismydetail = false">
+    <div @click.stop="">
+      <div
+        style="position: fixed;bottom: 0;width: 100%;background: #fff;text-align: center;color: #999;font-size: 12px">
+        <div style="margin-top: -35px">
+          <img :src="mydetails.Header" alt=""
+               style="width: 70px;height: auto;display: block;margin: 0 auto;border-radius: 50%">
+        </div>
+        <div style="height: 10px"></div>
+        <div style="color: #000;font-weight: 600">
+          {{mydetails.Nick}}
+        </div>
+        <div style="height: 30px"></div>
+        <div>
+          这个家伙很懒，什么都没留下...
+        </div>
+
+        <div style="height: 50px"></div>
+        <div style="display: flex;justify-content: space-between;padding: 0 10px">
+          <div style="flex: 1;border-right: 1px solid #eee">
+            <div style="color: #000;font-weight: 500;font-size: 14px">{{mydetails.Follow}}</div>
+            <div>关注</div>
+          </div>
+          <div style="flex: 1;border-right: 1px solid #eee;">
+            <div style="color: #000;font-weight: 500;font-size: 14px">{{mydetails.Fans}}</div>
+            <div>粉丝</div>
+          </div>
+          <div style="flex: 1;border-right: 1px solid #eee">
+            <div style="color: #000;font-weight: 500;font-size: 14px">{{mydetails.Send}}</div>
+            <div>收到打赏</div>
+          </div>
+          <div style="flex: 1;">
+            <div style="color: #000;font-weight: 500;font-size: 14px">{{mydetails.Receive}}</div>
+            <div>送礼</div>
+          </div>
+        </div>
+        <div style="height: 30px"></div>
+
+      </div>
+    </div>
+  </div>
+  <!--礼物-->
+  <div class="backcolors" v-if="isgiftDetail" @click="isgiftDetail = false">
+    <div @click.stop="">
+      <div
+        style="position: fixed;bottom: 0;width: 100%;background: #222;text-align: center;color: #999;font-size: 12px">
+        <div style="height: 30px;"></div>
+        <div style="font-size: 14px">
+          <span style="color: #ccc;">钱包余额：</span>
+          <span style="color: #1cc6e2;">{{Math.round(yue*100)/100 }}ulam</span>
+        </div>
+        <div style="height: 20px;border-bottom: 0.5px solid #444"></div>
+        <div style="height: 10px;"></div>
+        <div style="padding: 0 10px;font-size: 0;text-align: left">
+          <div style="display: inline-block;;width: 25%;text-align: center" v-for="(item,index) in giftDetails"
+               :key="index" :style="{background:isflag == item.Id?'#000':''}" @click="isflag = item.Id">
+            <div><img :src="item.Logo" alt="" style="width: 50%;height: auto;display: block;margin: 0 auto"></div>
+            <div style="font-size: 12px;color: #fff">{{item.Name}}</div>
+            <div style="font-size: 10px;color: #ccc">{{item.Price}}ULAM</div>
+          </div>
+        </div>
+
+        <div style="height: 15px;"></div>
+        <div @click="huaqian"
+             style="border-radius: 20px;border: 1px solid #e23f5b;width: 60%;margin: 0 auto;line-height: 30px;color: #e23f5b">
+          打赏
+        </div>
+        <div style="height: 15px;"></div>
+      </div>
+    </div>
+  </div>
+  <!--密码框-->
+  <div class="backcolors" v-if="dialogVisible" @click="dialogVisible = false">
+    <div @click.stop="" style="position: fixed;width: 100%;top: 18%">
+      <div style="background: #fff;padding: 0 20px;width: 75%;margin: 0 auto;border-radius: 6px">
+        <div style="height: 16px"></div>
+        <div style="justify-content: center;display: flex;align-items: center">请输入密码</div>
+        <div style="height: 30px"></div>
+        <div style="margin: 20px 0">
+          <input placeholder="请输入密码" v-model="Password" show-password class="inptext"/>
+        </div>
+        <div style="height: 30px"></div>
+        <div slot="footer" class="dialog-footer" style="display: flex;justify-content: space-between;">
+             <span class="botmOk" style="background: #f5f5f5;color: rgb(127, 126, 126)"
+                   @click="dialogVisible = false">取 消</span>
+          <p style="width: 20px;"></p>
+          <span class="botmOk" @click="toAlipay">确 定</span>
+
+        </div>
+        <div style="height: 16px"></div>
+        <div style="height: 10px"></div>
+      </div>
+    </div>
+  </div>
+  <!--  写弹幕  -->
+  <div class="backcolors" v-if="istxtList" @click="istxtList = false">
+    <div @click.stop="" v-if="istxtList"
+         style="position:fixed;z-index: 1000;left: 0;bottom: 0;width: 100%;background: #ffff;display: flex">
+      <textarea type="text" v-model="livetext" @keyup.enter="seartvalus" class="texts"></textarea>
+      <div style="width: 20%;display: flex;align-items: center;justify-content: center" @click="seartvalus">发送</div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/vue.js"></script>
+<script src="./js/vue-html5plus.js"></script>
+<script src="./js/axios.js"></script>
+<script type="text/javascript" charset="utf-8">
+    new Vue({
+        el: '#app',
+        data: {
+            detailsitem: {}, Header: '',
+            mydetails: {},
+            setTimeo: false,
+            ismydetail: false,
+            IsFollow: false,
+            istxtList: false,
+            isgiftDetail: false,
+            isliwudetail: false,
+            dialogVisible: false,//密码框
+            Password: '',
+            count: 0,
+            gift: 0,
+            txtList: [
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+                // {nick:'老鼠爱猫咪',msg:'秋天的风，吹走夏天的雨'},
+            ],
+            livetext: '',
+            websocket: null,
+            token: 'dsdsdsdsds',
+            yue: '', isflag: 0, giftDetails: [],//送礼物
+        },
+        created() {
+
+
+            let plus = window.plus;
+            let h = plus.webview.getWebviewById('test');
+            // // console.log(JSON.stringify(Vue.os));
+            // // console.log( "应用首页Webview窗口："+h);
+            // // console.log( "应用首页Webview窗口："+h.monty);
+            // // console.log( "应用首页Webview窗口：_steId"+);
+            // // console.log( "应用首页Webview窗口："+h._token);
+            this.token = h._token;
+            this.yue = h.monty;
+            this.detailsitem = JSON.parse(JSON.stringify(h._steId));
+            this.Header = h._Header;
+            //直播介绍
+            this.detailLivetex(h._steId.Uid);//
+            //请求 直播收到 礼物列表
+            this._getgiftlist(h._steId.StreamName);//
+            //请求直播信息this.detailsitem.StreamName
+            this.liveplay(h._steId.StreamName);//
+            //请求礼物列表
+            this._getliwu();
+            //请求弹幕
+            this.getinformationList();
+
+        },
+        mounted: function () {
+            this.setTimeo = true;
+            setTimeout(() => {
+                this.setTimeo = false;
+            }, 3500);
+
+        },
+        methods: {
+            //选择礼物
+            huaqian() {
+                this.giftDetails.map(item => {
+                    if (item.Id == this.isflag) {
+                        this.isgiftDetail = false;
+                        this.liwudetail = item;
+                        this.dialogVisible = true;
+                    }
+                })
+            },
+            //发送弹幕
+            seartvalus() {
+                console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                if (this.livetext) {
+                    this.addliveChat()
+                }
+            },
+            //发送弹幕
+            addliveChat() {
+                let that = this;
+                let date = {"code": 10019, "streamName": that.detailsitem.StreamName, "msg": that.livetext};
+                this.websocket.send(JSON.stringify(date));
+                this.livetext = '';
+                this.istxtList = false;
+                this.websocket.onmessage = function (evt) {
+                    console.log('弹幕信息' + evt.data);
+                    if (evt.data == 'ping') {
+                        that.txtList.push({
+                            msg: '',
+                            nick: '',
+                        });
+                        if (that.txtList.length > 7) {
+                            that.txtList.shift(7, 1)
+                        }
+                        return
+                    } else {
+                        let obj = JSON.parse(evt.data);
+                        that.count = obj.count;
+                        that.gift = obj.gift;
+                        console.log(obj, '!!!!!!!!!!!!!!!!')
+                        if (obj.code == 10006) {
+                            that.txtList.push(obj);
+                            if (that.txtList.length > 7) {
+                                that.txtList.shift(7, 1)
+                            }
+                        }
+                    }
+
+                };
+            },
+            //请求弹幕
+            getinformationList() {
+                var wsServer = 'ws://39.98.249.37:5006/liveChat';
+                var websocket = new WebSocket(wsServer);
+                let that = this;
+                websocket.onopen = function (evt) {
+                    var remind = `{"token":"${that.token}","streamName":"${that.detailsitem.StreamName}"}`;
+                    websocket.send(remind);
+                };
+
+                websocket.onclose = function (evt) {
+                    console.log("Disconnected");
+                };
+                websocket.onmessage = function (evt) {
+                    console.log('弹幕信息' + evt.data);
+
+
+                    if (evt.data == 'ping') {
+                        console.log('!!!!!!!!!!!!!!!!');
+
+                        that.txtList.push({
+                            msg: '',
+                            nick: '',
+                        });
+                        if (that.txtList.length > 7) {
+                            that.txtList.shift(7, 1)
+                        }
+                        return
+                    } else {
+                        let obj = JSON.parse(evt.data);
+                        that.count = obj.count;
+                        that.gift = obj.gift;
+                        console.log(obj, '!!!!!!!!!!!!!!!!')
+                        if (obj.code == 10006) {
+                            that.txtList.push(obj);
+                            if (that.txtList.length > 7) {
+                                that.txtList.shift(7, 1)
+                            }
+                        }
+
+                    }
+
+
+                };
+                websocket.onerror = function () {
+                    that.reconnect()
+                };
+                this.websocket = websocket;
+            },
+            //重连
+            reconnect(url) {
+                let that = this;
+                setTimeout(function () {     //没连接上会一直重连，设置延迟避免请求过多
+                    var ws = that.websocket;
+                    ws.onclose = function () {
+                        that.reconnect()
+                    };
+                    ws.onerror = function () {
+                        that.reconnect()
+                    };
+                }, 2000);
+            },
+
+
+            //确认密码
+            toAlipay() {
+                this.dialogVisible = false;
+                //进行支付
+            },
+            //打开商品数据
+            toshopDetail() {
+
+            },
+            //打开打赏记录
+            torecordLive() {
+
+
+            },
+            //礼物详情
+            _getliwu() {
+                let apiurl = 'v1/live/gifts';
+                let data = {};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    // console.log(JSON.stringify(res.data), '礼物详情');
+
+                    this.giftDetails = res.data;
+                })
+            },
+            //请求 直播收到 礼物列表
+            _getgiftlist(Name) {
+                let apiurl = 'v1/live/gift-list';
+                let data = {
+                    "Page": 1,
+                    Name
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '!@!@!@,请求礼物列表')
+                })
+            },
+            //直播介绍
+            detailLivetex(Id) {
+                let apiurl = 'v1/live/MCInfo';
+                let data = {Id};
+                this.getlivesdislists(apiurl, data).then(res => {
+                    // console.log(JSON.stringify(res.data), '直播介绍');
+
+                    this.mydetails = res.data;
+                })
+            },
+            goback() {
+                let plus = window.plus;
+                let h = plus.webview.getWebviewById('test');
+                h.close();
+            },
+
+            getlivesdislists(apiurl, data) {
+                // const axios = require('axios');
+                const url = `http://39.98.249.37:5006/api/${apiurl}`;
+                let tokens = this.token;
+                return axios.post(url, data, {
+                    headers: {
+                        'content-type': 'application/json',
+                        "token": tokens
+                    }
+                }).then((res) => {
+                    return Promise.resolve(res.data)
+                }).catch((err) => {
+                    console.log(err, "@@@@@@@@@@@@@@@@");
+                })
+            },
+            //请求直播地址
+            liveplay(Name) {
+                let apiurl = 'v1/live/play';
+                let data = {
+                    Name
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res.data, '请求直播地址');
+                    this.liveID = res.data.ID;
+                    this.count = res.data.Count;
+                    this.IsFollow = res.data.IsFollow;
+                })
+            },
+            //取消关注
+            cancelfollow(Id) {
+                let plus = window.plus
+                let apiurl = 'v1/live/cancel_follow';
+                let data = {
+                    Id
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '取消关注')
+                    if (res.status == "fail") {
+                        plus.nativeUI.toast('取消关注失败');
+                    } else {
+                        plus.nativeUI.toast('取消关注成功');
+                        this.IsFollow = false
+                    }
+                })
+            },
+            //关注主播
+            myfollow(Id) {
+                let plus = window.plus;
+                let apiurl = 'v1/live/follow';
+                let data = {
+                    Id,
+                    Name: this.detailsitem.StreamName
+                };
+                this.getlivesdislists(apiurl, data).then(res => {
+                    console.log(res, '取消关注')
+                    if (res.status == "fail") {
+                        plus.nativeUI.toast('关注主播失败', res.msg);
+                        // this.tagglePrompt(false,'关注主播失败',res.msg)
+                    } else {
+                        plus.nativeUI.toast('关注主播成功');
+                        // this.tagglePrompt(true,'关注主播成功');
+                        this.IsFollow = true;
+                    }
+
+                })
+            },
+        },
+        plusReady() {
+            // 获取定位信息
+            // this.$geolocation.getCurrentPosition().then(function (position) {
+            //     this.city = position.address.city;
+            // });
+            // // 获取网络信息
+            // this.networkType = this.$networkinfo.getCurrentNetworkType();
+        }
+    })
+</script>
+</body>
+</html>
